@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.linear_model import SGDClassifier
-from sklearn.metrics import roc_auc_score, f1_score, accuracy_score
+from sklearn.metrics import roc_auc_score, accuracy_score
 from sklearn.model_selection import train_test_split, KFold
 
 class PU_model:
