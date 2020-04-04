@@ -8,9 +8,10 @@ class PU_model:
                  estimator_type=1, weighted=False):
         """ model_s - модель g(x), оценивающая вероятность p(s=1|x),
         estimator_type принимает значения 1,2,3, сооствествующие способам расчета константы (self.const),
-        weighted: False - алгоритм из второй главы, True - из третьей, в котором множеству без меток (U) 
-        присваивается значение y=1, создается копия множества U, которому присваивается y=0, а затем алгоритм обучается заново 
-        на объектах из U с весом w при y=1 и 1-w при y=0"""
+        weighted: False - алгоритм из второй главы(возвращает констату с), 
+        True - из третьей, в котором множеству без меток (U) присваивается значение y=1,
+        создается копия множества U, которому присваивается y=0, а затем алгоритм обучается заново 
+        на объектах из U с весом w при y=1 и 1-w при y=0ю Возвращает None"""
         self.model= model
         self.estimator_type = estimator_type
         self.const = []
@@ -37,7 +38,7 @@ class PU_model:
             g =self.model.predict_proba(X_val)[train,1]
             c = self.estimator(g, ys_val[train,1])
             self.const.append(c)
-            self.cv_score.append(self.test(X_val[test], ys_val[test, 0], c))
+            self.cv_score.append(self.test(X_val[test], ys_val[test, 0], c)[0])
         const = self.const[self.cv_score.index(max(self.cv_score))]
         if self.weighted:
             g =self.model.predict_proba(X_val)[:,1]
@@ -50,10 +51,9 @@ class PU_model:
 
     def test(self, X_test, y_test, const):
         proba = self.model.predict_proba(X_test)[:,1]/const
-        k={}
-        k['roc_auc']= roc_auc_score(y_test, proba)
-        k['accuracy'] = accuracy_score(y_test, np.around(proba))
-        k['f1_score'] = f1_score(y_test, np.around(proba))
+        k=[]
+        k.append(roc_auc_score(y_test, proba))
+        k.append(accuracy_score(y_test, np.around(proba)))
         return k
 
     def estimator(self, proba, s):
